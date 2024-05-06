@@ -1,119 +1,56 @@
-{
-  "cells": [
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "view-in-github",
-        "colab_type": "text"
-      },
-      "source": [
-        "<a href=\"https://colab.research.google.com/github/KovryakRuslan312005/CH_M_Kovryak/blob/main/%D0%9B%D0%91%E2%84%963%20%D0%9A%D0%BE%D0%B2%D1%80%D1%8F%D0%BA%20%D0%A0%D1%83%D1%81%D0%BB%D0%B0%D0%BD%20%D0%A7%D0%9C\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
-      ]
-    },
-    {
-      "cell_type": "code",
-      "execution_count": null,
-      "metadata": {
-        "id": "zwFnJsE6vjf8",
-        "outputId": "8b8fd880-155e-4ad0-f14d-c34d5cb24343",
-        "colab": {
-          "base_uri": "https://localhost:8080/"
-        }
-      },
-      "outputs": [
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": [
-            "Метод Ньютона, x =  -1.0007\n",
-            "Комбінований метод, x =  -1.0\n"
-          ]
-        },
-        {
-          "output_type": "stream",
-          "name": "stderr",
-          "text": [
-            "<ipython-input-1-a2a703d76e56>:25: DeprecationWarning: scipy.misc.derivative is deprecated in SciPy v1.10.0; and will be completely removed in SciPy v1.12.0. You may consider using findiff: https://github.com/maroba/findiff or numdifftools: https://github.com/pbrod/numdifftools\n",
-            "  df2 = nd.derivative(f, b, n=2)  # Отримання значення другої похідної в точці b\n",
-            "<ipython-input-1-a2a703d76e56>:30: DeprecationWarning: scipy.misc.derivative is deprecated in SciPy v1.10.0; and will be completely removed in SciPy v1.12.0. You may consider using findiff: https://github.com/maroba/findiff or numdifftools: https://github.com/pbrod/numdifftools\n",
-            "  df = nd.derivative(f, xi, n=1)  # Отримання значення першої похідної в точці xi\n",
-            "<ipython-input-1-a2a703d76e56>:38: DeprecationWarning: scipy.misc.derivative is deprecated in SciPy v1.10.0; and will be completely removed in SciPy v1.12.0. You may consider using findiff: https://github.com/maroba/findiff or numdifftools: https://github.com/pbrod/numdifftools\n",
-            "  if nd.derivative(f, a, n=1) * nd.derivative(f, a, n=2) > 0:\n",
-            "<ipython-input-1-a2a703d76e56>:48: DeprecationWarning: scipy.misc.derivative is deprecated in SciPy v1.10.0; and will be completely removed in SciPy v1.12.0. You may consider using findiff: https://github.com/maroba/findiff or numdifftools: https://github.com/pbrod/numdifftools\n",
-            "  bi_1 = bi - f(bi) / nd.derivative(f, bi, n=1)\n"
-          ]
-        }
-      ],
-      "source": [
-        "import numpy as np\n",
-        "import scipy.misc as nd\n",
-        "\n",
-        "def f(x):\n",
-        "    return 6*x**4 - 4*x**3 - x**2 - x - 10  # Змінено рівняння на 6x^4 - 4x^3 - x^2 - x - 10\n",
-        "\n",
-        "eps=0.0001\n",
-        "\n",
-        "def find_segments():\n",
-        "    search_range = np.arange(-100, 100, 1)\n",
-        "\n",
-        "    previous_x = None\n",
-        "    segments = []\n",
-        "\n",
-        "    for x in search_range:\n",
-        "        x = round(x, 4)\n",
-        "        current_x = f(x)\n",
-        "        if previous_x != None and previous_x * current_x < 0:\n",
-        "            segments.append((a, x))\n",
-        "        a = x\n",
-        "        previous_x = current_x\n",
-        "    return segments\n",
-        "\n",
-        "def newton(a, b, eps, f):\n",
-        "    df2 = nd.derivative(f, b, n=2)  # Отримання значення другої похідної в точці b\n",
-        "    if f(b) * df2 > 0:\n",
-        "        xi = b\n",
-        "    else:\n",
-        "        xi = a\n",
-        "    df = nd.derivative(f, xi, n=1)  # Отримання значення першої похідної в точці xi\n",
-        "    xi_1 = xi - f(xi) / df\n",
-        "    while abs(xi_1 - xi) > eps:  # Перевірка точності\n",
-        "        xi = xi_1\n",
-        "        xi_1 = xi - f(xi) / df\n",
-        "    print('Метод Ньютона, x = ', xi_1.round(4))\n",
-        "\n",
-        "def hybrid(a, b, eps, f):\n",
-        "    if nd.derivative(f, a, n=1) * nd.derivative(f, a, n=2) > 0:\n",
-        "        a0 = a\n",
-        "        b0 = b\n",
-        "    else:\n",
-        "        a0 = b\n",
-        "        b0 = a\n",
-        "    ai = a0\n",
-        "    bi = b0\n",
-        "    while abs(ai - bi) > eps:\n",
-        "        ai_1 = ai - f(ai) * (bi - ai) / (f(bi) - f(ai))\n",
-        "        bi_1 = bi - f(bi) / nd.derivative(f, bi, n=1)\n",
-        "        ai = ai_1\n",
-        "        bi = bi_1\n",
-        "    x = (ai_1 + bi_1) / 2\n",
-        "    print('Комбінований метод, x = ', x.round(4))\n",
-        "\n",
-        "if __name__ == \"__main__\":\n",
-        "    newton(-2, -1, eps, f)  # Метод Ньютона на іншому відрізку\n",
-        "    hybrid(-2, -1, eps, f)  # Комбінований метод на іншому відрізку"
-      ]
-    }
-  ],
-  "metadata": {
-    "colab": {
-      "provenance": [],
-      "include_colab_link": true
-    },
-    "kernelspec": {
-      "display_name": "Python 3",
-      "name": "python3"
-    }
-  },
-  "nbformat": 4,
-  "nbformat_minor": 0
-}
+import numpy as np
+import scipy.misc as nd
+
+def f(x):
+    return 6*x**4 - 4*x**3 - x**2 - x - 10  # Змінено рівняння на 6x^4 - 4x^3 - x^2 - x - 10
+
+eps=0.0001
+
+def find_segments():
+    search_range = np.arange(-100, 100, 1)
+
+    previous_x = None
+    segments = []
+
+    for x in search_range:
+        x = round(x, 4)
+        current_x = f(x)
+        if previous_x != None and previous_x * current_x < 0:
+            segments.append((a, x))
+        a = x
+        previous_x = current_x
+    return segments
+
+def newton(a, b, eps, f):
+    df2 = nd.derivative(f, b, n=2)  # Отримання значення другої похідної в точці b
+    if f(b) * df2 > 0:
+        xi = b
+    else:
+        xi = a
+    df = nd.derivative(f, xi, n=1)  # Отримання значення першої похідної в точці xi
+    xi_1 = xi - f(xi) / df
+    while abs(xi_1 - xi) > eps:  # Перевірка точності
+        xi = xi_1
+        xi_1 = xi - f(xi) / df
+    print('Метод Ньютона, x = ', xi_1.round(4))
+
+def hybrid(a, b, eps, f):
+    if nd.derivative(f, a, n=1) * nd.derivative(f, a, n=2) > 0:
+        a0 = a
+        b0 = b
+    else:
+        a0 = b
+        b0 = a
+    ai = a0
+    bi = b0
+    while abs(ai - bi) > eps:
+        ai_1 = ai - f(ai) * (bi - ai) / (f(bi) - f(ai))
+        bi_1 = bi - f(bi) / nd.derivative(f, bi, n=1)
+        ai = ai_1
+        bi = bi_1
+    x = (ai_1 + bi_1) / 2
+    print('Комбінований метод, x = ', x.round(4))
+
+if __name__ == "__main__":
+    newton(-2, -1, eps, f)  # Метод Ньютона на іншому відрізку
+    hybrid(-2, -1, eps, f)  # Комбінований метод на іншому відрізку
